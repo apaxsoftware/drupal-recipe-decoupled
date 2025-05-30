@@ -2,7 +2,6 @@ langcode: en
 status: true
 dependencies:
   module:
-    - layout_paragraphs
     - style_options
 id: row
 label: Row
@@ -10,10 +9,5 @@ icon_uuid: null
 icon_default: null
 description: ''
 behavior_plugins:
-  layout_paragraphs:
-    enabled: true
-    available_layouts:
-      apax_paragraphs__layout_onecol: '1 Column'
-      apax_paragraphs__layout_twocol: '2 Columns'
   style_options:
     enabled: true

@@ -77,6 +77,9 @@ install:
   - graphql_compose_preview
   - graphql_compose_fragments
   - graphql_compose_webform
+  # Custom
+  - style_options
+  - apax_paragraphs
 
 config:
   import:
