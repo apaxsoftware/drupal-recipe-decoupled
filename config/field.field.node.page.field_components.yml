@@ -9,9 +9,11 @@ dependencies:
     - paragraphs.paragraphs_type.faq
     - paragraphs.paragraphs_type.hero
     - paragraphs.paragraphs_type.logo_group
+    - paragraphs.paragraphs_type.row
     - paragraphs.paragraphs_type.testimonial
     - paragraphs.paragraphs_type.view_reference
     - paragraphs.paragraphs_type.webform
+    - paragraphs.paragraphs_type.wysiwyg
   module:
     - entity_reference_revisions
 id: node.page.field_components
@@ -33,9 +35,11 @@ settings:
       card_group: card_group
       logo_group: logo_group
       faq: faq
+      row: row
       testimonial: testimonial
       view_reference: view_reference
       webform: webform
+      wysiwyg: wysiwyg
     negate: 0
     target_bundles_drag_drop:
       author:
