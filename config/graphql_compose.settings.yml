@@ -215,6 +215,9 @@ field_config:
         enabled: true
       field_subheading:
         enabled: true
+    wysiwyg:
+      field_html_content:
+        enabled: true
   user:
     user:
       field_picture:
