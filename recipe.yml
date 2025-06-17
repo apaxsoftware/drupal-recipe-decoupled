@@ -24,7 +24,7 @@ config:
   import:
     simple_oauth: '*'
     graphql_compose: '*'
- 
+
   actions:
     simple_oauth.settings:
       simpleConfigUpdate:
