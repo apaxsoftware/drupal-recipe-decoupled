@@ -1,6 +1,9 @@
-name: 'APAX Decoupled'
-description: 'APAX Drupal extension ready to make decoupled sites using GraphQL'
+name: 'APAX Decoupled Drupal Recipe'
+description: 'A Drupal 10 recipe for extending the apax/recipe_apax_base recipe with additional Drupal modules and configurations for a decoupled Drupal setup.'
 type: 'Site'
+
+recipes:
+  - recipe_apax_base
 
 install:
   - view_unpublished
@@ -15,10 +18,8 @@ install:
   - graphql_compose_routes
   - graphql_compose_users
   - graphql_compose_views
-  - graphql_compose_metatags
   - graphql_compose_preview
   - graphql_compose_fragments
-  - graphql_compose_webform
 
 config:
   import:
@@ -37,4 +38,3 @@ config:
         remember_clients: true
         use_implicit: false
         disable_openid_connect: false
-

@@ -1,43 +1,48 @@
-# Drupal Decoupled Graphql advanced recipe
+## APAX Decoupled Drupal Recipe
 
-This recipe is a Drupal site as a turnkey solution for a headless CMS, using a GraphQL endpoint to create a decoupled site. It is ready to be seamlessly integrated with a front end application.
+A Drupal 10 recipe for extending the [apax/recipe_apax_base](https://github.com/apaxsoftware/drupal-recipe-base) recipe with additional Drupal modules and configurations for a decoupled Drupal setup.
 
-- For information related to installing Drupal read the [docs here](https://drupal-decoupled.octahedroid.com/docs/getting-started/drupal/install)
-- For information related to installing this Recipe read the [docs here](https://drupal-decoupled.octahedroid.com/docs/getting-started/drupal/extend)
+This [Drupal recipe](https://www.drupal.org/docs/extending-drupal/drupal-recipes) is designed to:
 
-## What this recipe does:
+- Install the APAX Base recipe
+- Install and configure GraphQL Compose for common entities
+- Install and configure Simple OAuth for authentication
+- Install and configure Visual Editor for inline editorial experience
 
-- Adds content types `pages` and `articles`
+## Usage
 
-- Create a set of `paragraphs`, ready to be used as a component for the previous content types.
+```shell
+composer require apax/recipe_apax_decoupled
+drush recipe ./path/to/recipe_apax_decoupled
+```
 
-- Create `media` image type
+## Local Development
 
-- Creates `user` roles `viewer` and `previewer`
+This project uses Lando for local development. Starting Lando from inside this project will build
+and install a containerized Drupal site with this recipe applied. You can start Lando with the
+following command:
 
-- Creates editor `user`
+```shell
+lando start
+```
 
-- Creates default content
+Reinstall the site and reapply the recipe with the following command:
 
-- Configure metatags
+```shell
+lando rebuild
+```
 
-- Configures path auto
+## Local Development
 
-- Configures gin as administration experience
+This project uses Lando for local development. Starting Lando will install containerized Drupal site with the recipe
+applied. You can start Lando with the following command:
 
-- Configures GQL as the decoupling strategy
+```shell
+lando start
+```
 
-  - Configures GQL Compose
-    - Edges
-    - Image Styles
-    - Menus
-    - Routes
-    - Users
-    - Views
-    - Metatags
-  - Configures preview
+Reinstall the site and reapply the recipe with the following command:
 
-- Configures simple oauth as auth mechanism for the BE and the FE
-
-- Configures Visual editor for inline editorial experience 
-
+```shell
+lando rebuild
+```

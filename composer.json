@@ -1,6 +1,6 @@
 {
-    "name": "apax/decoupled",
-    "description": "A recipe for extending the apax/base recipe with additional Drupal modules and configurations for a decoupled Drupal setup.",
+    "name": "apax/recipe_apax_decoupled",
+    "description": "A Drupal 10 recipe for extending the apax/recipe_apax_base recipe with additional Drupal modules and configurations for a decoupled Drupal setup.",
     "keywords": [
         "recipe",
         "drupal recipe",
@@ -10,12 +10,15 @@
     "type": "drupal-recipe",
     "license": "GPL-2.0-or-later",
     "require": {
+        "apax/recipe_apax_base": "dev-main",
         "drupal/decoupled_preview_iframe": "^1.0",
         "drupal/graphql_compose": "^2.2",
         "drupal/graphql_compose_fragments": "^1.0@beta",
         "drupal/graphql_compose_preview": "^1.0",
         "drupal/graphql_compose_webform": "^1.2@dev",
+        "drupal/paragraphs": "^1.19",
         "drupal/simple_oauth": "^6.0",
-        "drupal/view_unpublished": "^1.2"
+        "drupal/view_unpublished": "^1.2",
+        "drupal/visual_editor": "^1.0"
     }
 }

@@ -1,0 +1,45 @@
+name: recipe-apax-decoupled
+recipe: drupal11
+config:
+  php: "8.3"
+  via: apache:2.4
+  database: mysql:8.0
+  drush: ^13
+  composer_version: 2-latest
+  webroot: web
+services:
+  appserver:
+    app_mount: disabled
+    environment:
+      RECIPE_PKG_ORG: apax
+      RECIPE_PKG_NAME: recipe_apax_decoupled
+      RECIPE_PATH: &recipe-path /var/www/recipe
+    volumes:
+      - type: bind
+        source: $PWD
+        target: *recipe-path
+    build:
+      - composer create-project drupal/recommended-project:^10 /app
+      - composer config minimum-stability dev
+      - composer config repositories.$RECIPE_PKG_NAME --json "{\"type\":\"path\",\"url\":\"$RECIPE_PATH\"}"
+      - composer require --no-interaction drush/drush $RECIPE_PKG_ORG/$RECIPE_PKG_NAME
+      #- composer require --no-interaction --dev kevinquillen/recipe-generator:^2.0
+    run:
+      - |
+        drush -v site:install -v /app/recipes/$RECIPE_PKG_NAME \
+          --db-url='mysql://drupal:drupal@database/drupal' \
+          --account-name='admin' \
+          --account-pass='admin' \
+          --account-mail='info@apaxsoftware.com' \
+          --yes
+  database:
+    creds:
+      user: drupal
+      password: drupal
+      database: drupal
+
+tooling:
+  cex:
+    description: Drupal config export
+    service: appserver
+    cmd: drush cex -y --destination "$RECIPE_PATH/.config-export"
