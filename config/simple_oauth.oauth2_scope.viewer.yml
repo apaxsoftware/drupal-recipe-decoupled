@@ -1,0 +1,21 @@
+langcode: en
+status: true
+dependencies: {  }
+id: viewer
+name: viewer
+description: viewer
+grant_types:
+  client_credentials:
+    status: true
+    description: ''
+  refresh_token:
+    status: false
+    description: ''
+  authorization_code:
+    status: false
+    description: ''
+umbrella: false
+parent: _none
+granularity_id: role
+granularity_configuration:
+  role: viewer

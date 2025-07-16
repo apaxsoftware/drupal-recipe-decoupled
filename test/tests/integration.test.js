@@ -37,7 +37,9 @@ describe('Integration Tests - Frontend Simulation', () => {
               __typename
               id
               title
-              created
+              created {
+                timestamp
+              }
             }
           }
         }
@@ -54,8 +56,8 @@ describe('Integration Tests - Frontend Simulation', () => {
     // Make multiple GraphQL requests
     const queries = [
       '{ __typename }',
-      '{ nodePages { edges { node { id } } } }',
-      '{ users { edges { node { id } } } }'
+      '{ nodePages(first: 10) { edges { node { id } } } }',
+      '{ users(first: 10) { edges { node { id } } } }',
     ];
 
     for (const query of queries) {
@@ -96,9 +98,9 @@ describe('Integration Tests - Frontend Simulation', () => {
 
     const results = await Promise.all(requests);
     expect(results).toHaveLength(3);
-    
+
     // All requests should succeed
-    results.forEach(result => {
+    results.forEach((result) => {
       expect(result.data).toBeDefined();
     });
   });
@@ -151,8 +153,12 @@ describe('Integration Tests - Frontend Simulation', () => {
                 __typename
                 id
                 title
-                created
-                changed
+                created {
+                  timestamp
+                }
+                changed {
+                  timestamp
+                }
               }
             }
           }
@@ -192,9 +198,9 @@ describe('Integration Tests - Frontend Simulation', () => {
     // Simulate a user session with multiple operations
     const operations = [
       () => client.getGraphQL('{ __typename }'),
-      () => client.getGraphQL('{ nodePages { edges { node { id } } } }'),
-      () => client.getGraphQL('{ users { edges { node { id } } } }'),
-      () => client.getGraphQL('{ menu(name: MAIN) { name } }')
+      () => client.getGraphQL('{ nodePages(first: 10) { edges { node { id } } } }'),
+      () => client.getGraphQL('{ users(first: 10) { edges { node { id } } } }'),
+      () => client.getGraphQL('{ menu(name: MAIN) { name } }'),
     ];
 
     for (const operation of operations) {
@@ -217,7 +223,9 @@ describe('Integration Tests - Frontend Simulation', () => {
                 processed
               }
               status
-              created
+              created {
+                timestamp
+              }
             }
           }
         }
@@ -227,25 +235,27 @@ describe('Integration Tests - Frontend Simulation', () => {
     expect(response.data).toBeDefined();
     expect(response.data.nodePages).toBeDefined();
     expect(response.data.nodePages).toHaveProperty('edges');
-    
+
     // Find the test page by title
-    const testPage = response.data.nodePages.edges.find(edge => 
-      edge.node.title === 'Test Page from Lando Build'
+    const testPage = response.data.nodePages.edges.find(
+      (edge) => edge.node.title === 'Test Page from Lando Build'
     );
-    
+
     // Verify the test page exists
     expect(testPage).toBeDefined();
     expect(testPage.node).toBeDefined();
     expect(testPage.node.title).toBe('Test Page from Lando Build');
-    
+
     // Verify the page has body content
     expect(testPage.node.body).toBeDefined();
     expect(testPage.node.body.value).toBeDefined();
-    expect(testPage.node.body.value).toContain('This is a test page created during the Lando build process');
-    
+    expect(testPage.node.body.value).toContain(
+      'This is a test page created during the Lando build process'
+    );
+
     // Verify the page is published
     expect(testPage.node.status).toBe(true);
-    
+
     // Verify the page has required fields
     expect(testPage.node.id).toBeDefined();
     expect(testPage.node.created).toBeDefined();

@@ -23,21 +23,20 @@ class DrupalClient {
     }
 
     try {
-      // Get OAuth tokens using client_credentials grant type with FormData
+      // Create form data for OAuth request
       const formData = new FormData();
       formData.append('grant_type', 'client_credentials');
       formData.append('client_id', client_id);
       formData.append('client_secret', client_secret);
 
-      const tokenResponse = await axios.post(`${this.baseURL}/oauth/token`, formData, {
+      const response = await axios.post(`${this.baseURL}/oauth/token`, formData, {
         headers: {
-          'Accept': 'application/json',
-          ...formData.getHeaders()
-        }
+          ...formData.getHeaders(),
+        },
       });
 
-      this.accessToken = tokenResponse.data.access_token;
-      this.refreshToken = tokenResponse.data.refresh_token;
+      this.accessToken = response.data.access_token;
+      this.refreshToken = response.data.refresh_token;
 
       return true;
     } catch (error) {
@@ -137,4 +136,4 @@ class DrupalClient {
   }
 }
 
-module.exports = DrupalClient; 
+module.exports = DrupalClient;

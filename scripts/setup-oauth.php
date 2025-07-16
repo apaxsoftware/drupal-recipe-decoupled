@@ -112,9 +112,25 @@ function outputEnvVars($previewer_consumer, $viewer_consumer)
   }
 }
 
+// Helper function to clean up existing consumers
+function cleanupExistingConsumers()
+{
+  $consumer_storage = \Drupal::entityTypeManager()->getStorage('consumer');
+
+  // Delete any existing consumers to start fresh including the unused Default.
+  $existing_consumers = $consumer_storage->loadMultiple();
+  foreach ($existing_consumers as $consumer) {
+    fwrite(STDERR, "Deleting existing consumer: " . $consumer->label() . "\n");
+    $consumer->delete();
+  }
+}
+
 // Main execution
 try {
   fwrite(STDERR, "Setting up OAuth consumers...\n");
+
+  // Clean up any existing consumers first
+  cleanupExistingConsumers();
 
   // Create keys directory and generate keys
   $keys_dir = createKeysDirectory();

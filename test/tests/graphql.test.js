@@ -31,7 +31,9 @@ describe('GraphQL API', () => {
               __typename
               id
               title
-              created
+              created {
+                timestamp
+              }
             }
           }
         }
