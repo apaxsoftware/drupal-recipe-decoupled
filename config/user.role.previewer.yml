@@ -8,8 +8,8 @@ dependencies:
     - view_unpublished
 id: previewer
 label: Previewer
-weight: -6
-is_admin: null
+weight: -7
+is_admin: false
 permissions:
   - 'execute graphql_compose_server arbitrary graphql requests'
   - 'view all revisions'

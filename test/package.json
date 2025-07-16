@@ -1,0 +1,28 @@
+{
+    "name": "drupal-recipe-decoupled-tests",
+    "version": "1.0.0",
+    "description": "Automated tests for APAX Decoupled Drupal Recipe",
+    "main": "index.js",
+    "scripts": {
+        "test": "jest",
+        "test:watch": "jest --watch",
+        "test:coverage": "jest --coverage"
+    },
+    "dependencies": {
+        "axios": "^1.6.0",
+        "dotenv": "^17.2.0",
+        "form-data": "^4.0.0"
+    },
+    "devDependencies": {
+        "jest": "^29.7.0",
+        "jest-environment-node": "^29.7.0"
+    },
+    "jest": {
+        "testEnvironment": "node",
+        "testTimeout": 30000,
+        "setupFilesAfterEnv": [
+            "<rootDir>/jest.setup.js"
+        ],
+        "maxWorkers": 1
+    }
+}

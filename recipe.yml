@@ -1,40 +1,67 @@
-name: 'APAX Decoupled Drupal Recipe'
-description: 'A Drupal 10 recipe for extending the apax/recipe_apax_base recipe with additional Drupal modules and configurations for a decoupled Drupal setup.'
-type: 'Site'
+name: "APAX Decoupled Drupal Recipe"
+description: "A Drupal 11 recipe for extending the apax/recipe_apax_base recipe with additional Drupal modules and configurations for a decoupled Drupal setup."
+type: "Site"
 
 recipes:
   - recipe_apax_base
 
 install:
-  - view_unpublished
-  - simple_oauth
   - decoupled_preview_iframe
-  - visual_editor
-  - visual_editor_paragraphs
   - graphql_compose
   - graphql_compose_edges
+  - graphql_compose_fragments
   - graphql_compose_image_style
   - graphql_compose_menus
+  - graphql_compose_preview
   - graphql_compose_routes
   - graphql_compose_users
   - graphql_compose_views
-  - graphql_compose_preview
-  - graphql_compose_fragments
+  - simple_oauth
+  - view_unpublished
+  - visual_editor
 
 config:
   import:
-    simple_oauth: '*'
-    graphql_compose: '*'
+    decoupled_preview_iframe: "*"
+    graphql_compose: "*"
+    graphql_compose_edges: "*"
+    graphql_compose_fragments: "*"
+    graphql_compose_image_style: "*"
+    graphql_compose_menus: "*"
+    graphql_compose_preview: "*"
+    graphql_compose_routes: "*"
+    graphql_compose_users: "*"
+    graphql_compose_views: "*"
+    simple_oauth: "*"
+    view_unpublished: "*"
+    visual_editor: "*"
 
   actions:
+    # Set the preview types and draft provider for the decoupled preview iframe.
+    decoupled_preview_iframe.settings:
+      simpleConfigUpdate:
+        draft_provider: graphql_compose_preview
+        preview_types:
+          node:
+            page: page
+    # Set the Simple OAuth settings.
     simple_oauth.settings:
       simpleConfigUpdate:
         access_token_expiration: 2592000
         authorization_code_expiration: 2592000
         refresh_token_expiration: 2592000
-        token_cron_batch_size: 0
-        public_key: ../keys/public.key
-        private_key: ../keys/private.key
         remember_clients: true
         use_implicit: false
-        disable_openid_connect: false
+        public_key: ../keys/public.key
+        private_key: ../keys/private.key
+    # Set user role permissions.
+    user.role.viewer:
+      grantPermissions:
+        - execute graphql_compose_server arbitrary graphql requests
+    user.role.previewer:
+      grantPermissions:
+        - execute graphql_compose_server arbitrary graphql requests
+        - view all revisions
+        - view any unpublished content
+        - view graphql_compose_preview entity
+        - view own unpublished content
