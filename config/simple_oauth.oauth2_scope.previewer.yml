@@ -2,8 +2,8 @@ langcode: en
 status: true
 dependencies: {  }
 id: previewer
-name: previewer
-description: 'Preview graphql'
+name: Previewer
+description: 'Previewer graphql'
 grant_types:
   client_credentials:
     status: true

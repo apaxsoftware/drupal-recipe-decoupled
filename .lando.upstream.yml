@@ -1,0 +1,77 @@
+name: apax-recipe
+x-vars:
+  - &recipe-vendor  apax
+  - &recipe-path    /var/www/recipe
+  - &patches-env
+      PATCHES_APPLY: 0 # 0 = disable, 1 = enable
+      # PATCHES_JSON: >-
+      #   {
+      #     "drupal/decoupled_preview_iframe": {
+      #       "https://drupal.org/i/3472795 - Fix config form error":
+      #         "https://git.drupalcode.org/issue/decoupled_preview_iframe-3472795/-/commit/f4eb64f9.patch"
+      #     }
+      #   }
+
+services:
+  appserver:
+    app_mount: disabled
+    environment:
+      RECIPE_VENDOR: *recipe-vendor
+      RECIPE_PATH:   *recipe-path
+      <<: *patches-env
+    volumes:
+      - type: bind
+        source: $PWD
+        target: *recipe-path
+    build_internal:
+      - composer create-project drupal/recommended-project:^11 /app
+      - composer config --no-plugins minimum-stability dev
+      - composer config --no-plugins repositories.$RECIPE_NAME --merge --json "{\"type\":\"path\",\"url\":\"$RECIPE_PATH\"}"
+      - |-
+        if [ "$PATCHES_APPLY" -eq 1 ] && [ -n "$PATCHES_JSON" ]; then
+          COMPOSER_PATCH_PLUGIN='cweagans/composer-patches'
+          composer config --no-plugins allow-plugins.$COMPOSER_PATCH_PLUGIN true
+          composer config --no-plugins extra.patches --merge --json "$PATCHES_JSON"
+        fi
+      - composer require --no-interaction $COMPOSER_PATCH_PLUGIN drush/drush $RECIPE_VENDOR/$RECIPE_NAME
+    run_internal:
+      - |-
+        drush site:install "/app/recipes/$RECIPE_NAME" \
+          --db-url='mysql://drupal:drupal@database/drupal' \
+          --account-name='admin' \
+          --account-pass='admin' \
+          --account-mail='info@apaxsoftware.com' \
+          --yes
+      - |-
+        echo "Creating Editor user with content_editor role..."
+        drush user:create Editor --mail="editor@example.com" --password="editor123"
+        drush user:role:add content_editor Editor
+
+  database:
+    creds:
+      user: drupal
+      password: drupal
+      database: drupal
+
+tooling:
+  export:
+    description: Drupal config export
+    service: appserver
+    cmd:
+      - drush cex -y --destination "$RECIPE_PATH/.config-export"
+      - drush php:script "$RECIPE_PATH/scripts/clean-config-export.php"
+
+  composer-updates:
+    description: Update major and minor versions in composer.json
+    service: appserver
+    cmd: |-
+      which composer || (tput setaf 1 && echo "Start Lando before running this command!" && tput sgr0 && exit 1)
+      echo "=== Checking for Available Updates ==="
+      composer outdated --direct --major-only
+
+  test:
+    description: Run automated tests for the Drupal Recipe
+    service: node
+    cmd:
+      - npm install
+      - bash -c "source .env && npm test"

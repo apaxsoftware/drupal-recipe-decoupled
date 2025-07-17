@@ -2,8 +2,8 @@ langcode: en
 status: true
 dependencies: {  }
 id: viewer
-name: viewer
-description: viewer
+name: Viewer
+description: 'Viewer graphql'
 grant_types:
   client_credentials:
     status: true

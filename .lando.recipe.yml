@@ -1,0 +1,83 @@
+# This file is merged onto the .lando.upstream.yml config.
+name: recipe-apax-decoupled
+x-vars:
+  - &recipe-name    recipe_apax_decoupled
+  - &node-host      test.recipe-apax-decoupled.lndo.site
+  - &patches-env
+    PATCHES_APPLY: 1
+    PATCHES_JSON: >-
+      {
+        "drupal/decoupled_preview_iframe": {
+          "https://drupal.org/i/3472795 - Fix config form error":
+            "https://git.drupalcode.org/issue/decoupled_preview_iframe-3472795/-/commit/f4eb64f9.patch"
+        }
+      }
+
+
+services:
+  appserver:
+    app_mount: disabled
+    environment:
+      RECIPE_NAME:       *recipe-name
+      FRONTEND_HOST:     *node-host
+      <<: *patches-env
+    run:
+      - |-
+        SETTINGS_PHP=/app/web/sites/default/settings.php
+        chmod 644 "$SETTINGS_PHP"
+        CONFIG_VAR="\$config['decoupled_preview_iframe.settings']"
+        echo "${CONFIG_VAR}['redirect_url'] = 'https://' . getenv('FRONTEND_HOST');" >> "$SETTINGS_PHP"
+        echo "${CONFIG_VAR}['preview_url'] = 'https://' . getenv('FRONTEND_HOST');" >> "$SETTINGS_PHP"
+      - &reset-oauth-cmd |-
+        echo "Setting up OAuth client for testing..."
+        drush php:script "$RECIPE_PATH/scripts/setup-oauth.php" -- --reset > $RECIPE_PATH/test/.env
+      - |-
+        drush php:eval "
+          \$storage = \Drupal::entityTypeManager()->getStorage('node');
+          \$query = \$storage->getQuery()->accessCheck(FALSE)->condition('title', 'Test Page from Lando Build')->condition('type', 'page')->range(0, 1);
+          \$nids = \$query->execute();
+          if (empty(\$nids)) {
+            echo 'Creating a test page...';
+            \$storage->create([
+              'type' => 'page',
+              'title' => 'Test Page from Lando Build',
+              'body' => 'This is a test page created during the Lando build process.',
+              'uid' => 1,
+              'status' => 1
+            ])->save();
+          }
+        "
+
+  node:
+    type: node:22
+    app_mount: disabled
+    ssl: false
+    port: 3000
+    scanner: false
+    volumes:
+      - type: bind
+        source: $PWD/test
+        target: /app
+    build:
+      - npm install
+    command: tail -f /dev/null
+
+tooling:
+  npm:
+    service: node
+
+  reset-oauth:
+    description: Set up OAuth client for testing
+    service: appserver
+    cmd: *reset-oauth-cmd
+
+  test:
+    description: Run automated tests for the Drupal Recipe
+    service: node
+    cmd:
+      - npm install
+      - bash -c "source .env && npm test"
+
+proxy:
+  node:
+    - *node-host

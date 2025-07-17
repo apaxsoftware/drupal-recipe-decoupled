@@ -11,7 +11,6 @@
  * - A "Viewer" consumer with 'viewer' role
  * 
  * Outputs environment variables to stdout and user messages to stderr.
- * Environment variables use VIEW_ and PREVIEW_ prefixes.
  * 
  * When piped to a file, uses tee to show output on CLI and save to file.
  */
@@ -49,7 +48,8 @@ function createConsumer($label, $role, $user_id = 2)
 {
   $random = new Random();
   $client_id = Crypt::randomBytesBase64();
-  $client_secret = $random->string(8);
+  // Generate client secret without problematic characters for .env files
+  $client_secret = $random->name(12, TRUE);
 
   $consumer = Consumer::create([
     'label' => $label,
@@ -129,8 +129,10 @@ function cleanupExistingConsumers()
 try {
   fwrite(STDERR, "Setting up OAuth consumers...\n");
 
-  // Clean up any existing consumers first
-  cleanupExistingConsumers();
+  if (isset($extra) && in_array('--reset', $extra)) {
+    fwrite(STDERR, "--reset flag detected: cleaning up existing consumers...\n");
+    cleanupExistingConsumers();
+  }
 
   // Create keys directory and generate keys
   $keys_dir = createKeysDirectory();

@@ -8,88 +8,20 @@ config:
   composer_version: 2-latest
 
 x-vars:
-  - &recipe-vendor  apax
-  - &recipe-name    recipe_apax_decoupled
-  - &node-host      app.recipe-apax-decoupled.lndo.site
+  - &node-host      test.recipe-apax-decoupled.lndo.site
   - &drupal-url     https://recipe-apax-decoupled.lndo.site
-  - &recipe-path    /var/www/recipe
 
 services:
   appserver:
-    app_mount: disabled
     environment:
-      RECIPE_VENDOR:     *recipe-vendor
-      RECIPE_NAME:       *recipe-name
-      RECIPE_PATH:       *recipe-path
-      FRONTEND_HOST:     *node-host
       DRUSH_OPTIONS_URI: *drupal-url
-    volumes:
-      - type: bind
-        source: $PWD
-        target: *recipe-path
-    build:
-      - composer create-project drupal/recommended-project:^11 /app
-      - composer config --no-plugins minimum-stability dev
-      - composer config --no-plugins repositories.$RECIPE_NAME --json "{\"type\":\"path\",\"url\":\"$RECIPE_PATH\"}"
-      - composer config --no-plugins allow-plugins.cweagans/composer-patches true
-      - composer config --no-plugins extra.patches --merge --json '{"drupal/decoupled_preview_iframe":{"https://drupal.org/i/3472795 - Fix config form error":"https://git.drupalcode.org/issue/decoupled_preview_iframe-3472795/-/commit/f4eb64f9.patch"}}'
-      - composer require --no-interaction cweagans/composer-patches drush/drush $RECIPE_VENDOR/$RECIPE_NAME
-    run:
-      - |-
-        drush site:install "/app/recipes/$RECIPE_NAME" \
-          --db-url='mysql://drupal:drupal@database/drupal' \
-          --account-name='admin' \
-          --account-pass='admin' \
-          --account-mail='info@apaxsoftware.com' \
-          --yes
-      - |-
-        SETTINGS_PHP=/app/web/sites/default/settings.php
-        chmod 644 "$SETTINGS_PHP"
-        CONFIG_VAR="\$config['decoupled_preview_iframe.settings']"
-        echo "${CONFIG_VAR}['redirect_url'] = 'https://' . getenv('FRONTEND_HOST');" >> "$SETTINGS_PHP"
-        echo "${CONFIG_VAR}['preview_url'] = 'https://' . getenv('FRONTEND_HOST');" >> "$SETTINGS_PHP"
-      - |-
-        echo "Creating Editor user with content_editor role..."
-        drush user:create Editor --mail="editor@example.com" --password="editor123"
-        drush user:role:add content_editor Editor
-      - &setup-oauth-cmd |-
-        echo "Setting up OAuth client for testing..."
-        drush php:script "$RECIPE_PATH/scripts/setup-oauth.php" > $RECIPE_PATH/test/.env
-      - |-
-        drush php:eval "
-          \$storage = \Drupal::entityTypeManager()->getStorage('node');
-          \$query = \$storage->getQuery()->accessCheck(FALSE)->condition('title', 'Test Page from Lando Build')->condition('type', 'page')->range(0, 1);
-          \$nids = \$query->execute();
-          if (empty(\$nids)) {
-            echo 'Creating a test page...';
-            \$storage->create([
-              'type' => 'page',
-              'title' => 'Test Page from Lando Build',
-              'body' => 'This is a test page created during the Lando build process.',
-              'uid' => 1,
-              'status' => 1
-            ])->save();
-          }
-        "
-
-  database:
-    creds:
-      user: drupal
-      password: drupal
-      database: drupal
-
   node:
     type: node:22
-    app_mount: disabled
     ssl: false
     port: 3000
     scanner: false
     environment:
       DRUPAL_URL: *drupal-url
-    volumes:
-      - type: bind
-        source: $PWD/test
-        target: /app
     build:
       - npm install
     command: tail -f /dev/null
@@ -97,33 +29,6 @@ services:
 tooling:
   npm:
     service: node
-
-  export:
-    description: Drupal config export
-    service: appserver
-    cmd:
-      - drush cex -y --destination "$RECIPE_PATH/.config-export"
-      - drush php:script "$RECIPE_PATH/scripts/clean-config-export.php"
-
-  composer-updates:
-    description: Update major and minor versions in composer.json
-    service: appserver
-    cmd: |-
-      which composer || (tput setaf 1 && echo "Start Lando before running this command!" && tput sgr0 && exit 1)
-      echo "=== Checking for Available Updates ==="
-      composer outdated --direct --major-only
-
-  setup-oauth:
-    description: Set up OAuth client for testing
-    service: appserver
-    cmd: *setup-oauth-cmd
-
-  test:
-    description: Run automated tests for the Drupal Recipe
-    service: node
-    cmd:
-      - npm install
-      - bash -c "source .env && npm test"
 
 proxy:
   node:

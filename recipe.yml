@@ -54,11 +54,20 @@ config:
         use_implicit: false
         public_key: ../keys/public.key
         private_key: ../keys/private.key
-    # Set user role permissions.
+
+    # Set user roles and permissions.
     user.role.viewer:
+      createIfNotExists:
+        id: viewer
+        label: Viewer
+        weight: -8
       grantPermissions:
         - execute graphql_compose_server arbitrary graphql requests
     user.role.previewer:
+      createIfNotExists:
+        id: previewer
+        label: Previewer
+        weight: -7
       grantPermissions:
         - execute graphql_compose_server arbitrary graphql requests
         - view all revisions
