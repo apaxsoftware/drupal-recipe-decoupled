@@ -1,0 +1,35 @@
+name: recipe-apax-decoupled
+recipe: drupal11
+config:
+  php: '8.3'
+  via: apache:2.4
+  database: mysql:8.0
+  webroot: web
+  composer_version: 2-latest
+
+x-vars:
+  - &node-host  test.recipe-apax-decoupled.lndo.site
+  - &drupal-url https://recipe-apax-decoupled.lndo.site
+
+services:
+  appserver:
+    environment:
+      DRUSH_OPTIONS_URI: *drupal-url
+  node:
+    type: node:22
+    ssl: false
+    port: 3000
+    scanner: false
+    environment:
+      DRUPAL_URL: *drupal-url
+    build:
+      - npm install
+    command: tail -f /dev/null
+
+tooling:
+  npm:
+    service: node
+
+proxy:
+  node:
+    - *node-host

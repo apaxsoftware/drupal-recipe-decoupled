@@ -1,0 +1,9 @@
+{
+    "yaml.schemas": {
+        "https://4lando.github.io/lando-spec/landofile-spec.json": [
+            ".lando.yml",
+            ".lando.*.yml"
+        ],
+        "https://www.schemastore.org/drupal-recipe.json": "recipe.yml"
+    }
+}

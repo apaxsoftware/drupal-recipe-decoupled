@@ -1,43 +1,50 @@
-# Drupal Decoupled Graphql advanced recipe
+# APAX Decoupled Drupal Recipe
 
-This recipe is a Drupal site as a turnkey solution for a headless CMS, using a GraphQL endpoint to create a decoupled site. It is ready to be seamlessly integrated with a front end application.
+A Drupal 11 recipe for extending the `apax/recipe_apax_base` recipe with additional Drupal modules and configurations for a decoupled Drupal setup.
 
-- For information related to installing Drupal read the [docs here](https://drupal-decoupled.octahedroid.com/docs/getting-started/drupal/install)
-- For information related to installing this Recipe read the [docs here](https://drupal-decoupled.octahedroid.com/docs/getting-started/drupal/extend)
+This [Drupal recipe](https://www.drupal.org/docs/extending-drupal/drupal-recipes) is designed to:
 
-## What this recipe does:
+- Install the APAX Base recipe (`apax/recipe_apax_base`)
+- Install and configure GraphQL Compose for common entities.
+- Install and configure Simple OAuth for authentication.
+- Install and configure a decoupled preview iframe and inline content editing with Visual Editor.
 
-- Adds content types `pages` and `articles`
+## Usage
 
-- Create a set of `paragraphs`, ready to be used as a component for the previous content types.
+```shell
+composer require apax/recipe_apax_decoupled
+drush recipe ./path/to/recipe_apax_decoupled
+```
 
-- Create `media` image type
+## Local Development
 
-- Creates `user` roles `viewer` and `previewer`
+This project uses [Lando](https://lando.dev/) for local development. Starting Lando will build and install a containerized Drupal site with this recipe applied.
 
-- Creates editor `user`
+### Core Commands
 
-- Creates default content
+- **`lando start`**: Start the development environment.
+- **`lando rebuild`**: Reinstall the Drupal site and reapply the recipe. Use this command when you make changes to `recipe.yml` or need a clean slate.
+- **`lando export`**: Export configuration changes from the Drupal UI to the `config/` directory in your project.
+- **`lando test`**: Run the automated Jest test suite located in the `test/` directory.
+- **`lando reset-oauth`**: Generates OAuth clients and keys required for testing. This creates a `test/.env` file with credentials that the test suite uses.
 
-- Configure metatags
+### Testing
 
-- Configures path auto
+The test suite uses Jest and is located in the `test/` directory. To run the tests:
 
-- Configures gin as administration experience
+1.  Ensure the development environment is running (`lando start`).
+2.  Set up the OAuth clients for the test environment: `lando reset-oauth`
+3.  Run the tests: `lando test`
 
-- Configures GQL as the decoupling strategy
+### OAuth Configuration
 
-  - Configures GQL Compose
-    - Edges
-    - Image Styles
-    - Menus
-    - Routes
-    - Users
-    - Views
-    - Metatags
-  - Configures preview
+The recipe automatically configures two OAuth clients with the `client_credentials` grant:
 
-- Configures simple oauth as auth mechanism for the BE and the FE
+-   **`viewer`**: For general content access.
+-   **`previewer`**: For previewing unpublished content.
 
-- Configures Visual editor for inline editorial experience 
+The `lando reset-oauth` command generates the necessary RSA keys (in the `/keys` directory) and configures the clients in Drupal for local testing.
 
+### AI Assisted Development
+
+This project includes an `AGENTS.md` file that provides general guidelines and context for AI assistants such as Cursor, Claude Code, and Gemini. To use it with your preferred AI assisted development tool, simply symlink or copy the `AGENTS.md` file to the appropriate rules file name for your assistant (e.g., `.cursorrules`, `CLAUDE.md`, `GEMINI.md`).
