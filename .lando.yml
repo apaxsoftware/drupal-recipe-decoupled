@@ -8,8 +8,8 @@ config:
   composer_version: 2-latest
 
 x-vars:
-  - &node-host      test.recipe-apax-decoupled.lndo.site
-  - &drupal-url     https://recipe-apax-decoupled.lndo.site
+  - &node-host  test.recipe-apax-decoupled.lndo.site
+  - &drupal-url https://recipe-apax-decoupled.lndo.site
 
 services:
   appserver:

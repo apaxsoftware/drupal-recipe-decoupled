@@ -17,3 +17,9 @@ Thumbs.db
 
 .lando.local.yml
 /.config-export/
+
+# AI Agents
+.cursorrules
+CLAUDE.md
+GEMINI.md
+.clinerules

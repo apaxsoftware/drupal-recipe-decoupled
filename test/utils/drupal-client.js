@@ -9,16 +9,16 @@ class DrupalClient {
     this.useOAuth = true; // Can be disabled for basic tests
   }
 
-  async authenticate() {
+  async authenticate(clientType = 'viewer') {
     if (!this.useOAuth) {
       // Skip OAuth for basic connectivity tests
       return true;
     }
 
-    const client_id = process.env.DRUPAL_PREVIEW_CLIENT_ID || global.DRUPAL_PREVIEW_CLIENT_ID;
-    const client_secret = process.env.DRUPAL_PREVIEW_CLIENT_SECRET || global.DRUPAL_PREVIEW_CLIENT_SECRET;
+    const clientId = clientType === 'previewer' ? process.env.DRUPAL_PREVIEW_CLIENT_ID : process.env.DRUPAL_VIEWER_CLIENT_ID;
+    const clientSecret = clientType === 'previewer' ? process.env.DRUPAL_PREVIEW_CLIENT_SECRET : process.env.DRUPAL_VIEWER_CLIENT_SECRET;
 
-    if (!client_id || !client_secret) {
+    if (!clientId || !clientSecret) {
       return false;
     }
 
@@ -26,8 +26,8 @@ class DrupalClient {
       // Create form data for OAuth request
       const formData = new FormData();
       formData.append('grant_type', 'client_credentials');
-      formData.append('client_id', client_id);
-      formData.append('client_secret', client_secret);
+      formData.append('client_id', clientId);
+      formData.append('client_secret', clientSecret);
 
       const response = await axios.post(`${this.baseURL}/oauth/token`, formData, {
         headers: {
@@ -44,9 +44,9 @@ class DrupalClient {
     }
   }
 
-  async makeRequest(method, endpoint, data = null, headers = {}) {
+  async makeRequest(method, endpoint, data = null, headers = {}, clientType = 'viewer') {
     if (this.useOAuth && !this.accessToken) {
-      const authenticated = await this.authenticate();
+      const authenticated = await this.authenticate(clientType);
       if (!authenticated) {
         throw new Error('Failed to authenticate with Drupal');
       }
@@ -76,7 +76,7 @@ class DrupalClient {
     } catch (error) {
       if (this.useOAuth && error.response?.status === 401) {
         // Token expired, try to refresh
-        const authenticated = await this.authenticate();
+        const authenticated = await this.authenticate(clientType);
         if (authenticated) {
           // Retry the request
           config.headers.Authorization = `Bearer ${this.accessToken}`;

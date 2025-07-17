@@ -18,8 +18,8 @@ services:
   appserver:
     app_mount: disabled
     environment:
-      RECIPE_NAME:       *recipe-name
-      FRONTEND_HOST:     *node-host
+      RECIPE_NAME: *recipe-name
+      FRONTEND_HOST: *node-host
       <<: *patches-env
     run:
       - |-
@@ -43,7 +43,7 @@ services:
               'title' => 'Test Page from Lando Build',
               'body' => 'This is a test page created during the Lando build process.',
               'uid' => 1,
-              'status' => 1
+              'status' => 0
             ])->save();
           }
         "

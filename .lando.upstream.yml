@@ -17,7 +17,7 @@ services:
     app_mount: disabled
     environment:
       RECIPE_VENDOR: *recipe-vendor
-      RECIPE_PATH:   *recipe-path
+      RECIPE_PATH: *recipe-path
       <<: *patches-env
     volumes:
       - type: bind

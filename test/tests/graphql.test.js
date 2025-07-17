@@ -114,4 +114,52 @@ describe('GraphQL API', () => {
     expect(Array.isArray(response.errors)).toBe(true);
     expect(response.errors.length).toBeGreaterThan(0);
   });
+
+  test('should not return restricted content to anonymous users', async () => {
+    // This test verifies that anonymous users can access the GraphQL endpoint
+    // but cannot retrieve restricted content. It performs two checks:
+    // 1. An anonymous query for all nodes, which should not include the
+    //    restricted test node.
+    // 2. An authenticated query for the same test node, which should
+    //    successfully return the node.
+    const anonymousClient = new DrupalClient();
+    anonymousClient.disableOAuth();
+
+    const anonymousQuery = `
+      query {
+        nodePages(first: 100) {
+          edges {
+            node {
+              id
+              title
+            }
+          }
+        }
+      }
+    `;
+
+    const anonymousResponse = await anonymousClient.getGraphQL(anonymousQuery);
+    const titles = anonymousResponse.data.nodePages.edges.map(edge => edge.node.title);
+    expect(titles).not.toContain('Test Page from Lando Build');
+
+    const authenticatedQuery = `
+      query {
+        nodePages(first: 100) {
+          edges {
+            node {
+              id
+              title
+            }
+          }
+        }
+      }
+    `;
+
+    // Authenticated request should return the node.
+    const previewClient = new DrupalClient();
+    await previewClient.authenticate('previewer');
+    const authenticatedResponse = await previewClient.getGraphQL(authenticatedQuery);
+    const authenticatedTitles = authenticatedResponse.data.nodePages.edges.map(edge => edge.node.title);
+    expect(authenticatedTitles).toContain('Test Page from Lando Build');
+  });
 });

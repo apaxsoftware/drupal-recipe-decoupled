@@ -56,6 +56,9 @@ config:
         private_key: ../keys/private.key
 
     # Set user roles and permissions.
+    user.role.anonymous:
+      grantPermissions:
+        - execute graphql_compose_server arbitrary graphql requests
     user.role.viewer:
       createIfNotExists:
         id: viewer

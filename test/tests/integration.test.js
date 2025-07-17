@@ -237,9 +237,28 @@ describe('Integration Tests - Frontend Simulation', () => {
     expect(response.data.nodePages).toHaveProperty('edges');
 
     // Find the test page by title
-    const testPage = response.data.nodePages.edges.find(
-      (edge) => edge.node.title === 'Test Page from Lando Build'
-    );
+    const previewClient = new DrupalClient();
+    await previewClient.authenticate('previewer');
+    const testPageResponse = await previewClient.getGraphQL(`
+      query {
+        nodePages(first: 100) {
+          edges {
+            node {
+              id
+              title
+              body {
+                value
+              }
+              status
+              created {
+                timestamp
+              }
+            }
+          }
+        }
+      }
+    `);
+    const testPage = testPageResponse.data.nodePages.edges.find(edge => edge.node.title === 'Test Page from Lando Build');
 
     // Verify the test page exists
     expect(testPage).toBeDefined();
@@ -253,8 +272,8 @@ describe('Integration Tests - Frontend Simulation', () => {
       'This is a test page created during the Lando build process'
     );
 
-    // Verify the page is published
-    expect(testPage.node.status).toBe(true);
+    // Verify the page is unpublished
+    expect(testPage.node.status).toBe(false);
 
     // Verify the page has required fields
     expect(testPage.node.id).toBeDefined();
