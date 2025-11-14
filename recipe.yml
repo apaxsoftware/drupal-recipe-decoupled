@@ -12,11 +12,15 @@ install:
   - graphql_compose_fragments
   - graphql_compose_image_style
   - graphql_compose_menus
+  - graphql_compose_metatags
   - graphql_compose_preview
   - graphql_compose_routes
   - graphql_compose_users
   - graphql_compose_views
+  - graphql_compose_webform
   - simple_oauth
+  - site_settings
+  - site_settings_type_permissions
   - view_unpublished
   - visual_editor
 
@@ -28,11 +32,14 @@ config:
     graphql_compose_fragments: "*"
     graphql_compose_image_style: "*"
     graphql_compose_menus: "*"
+    graphql_compose_metatags: "*"
     graphql_compose_preview: "*"
     graphql_compose_routes: "*"
     graphql_compose_users: "*"
     graphql_compose_views: "*"
+    graphql_compose_webform: "*"
     simple_oauth: "*"
+    site_settings: "*"
     view_unpublished: "*"
     visual_editor: "*"
 
@@ -52,8 +59,8 @@ config:
         refresh_token_expiration: 2592000
         remember_clients: true
         use_implicit: false
-        public_key: ../keys/public.key
-        private_key: ../keys/private.key
+        public_key: private://keys/public.key
+        private_key: private://keys/private.key
 
     # Set user roles and permissions.
     user.role.anonymous:
