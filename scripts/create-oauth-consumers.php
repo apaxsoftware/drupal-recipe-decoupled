@@ -2,54 +2,29 @@
 <?php
 
 /**
- * Script to set up OAuth consumers for Drupal decoupled authentication.
- * 
- * Usage: lando drush php:script setup-oauth.php
- * 
+ * Script to create OAuth consumers for Drupal decoupled authentication.
+ *
+ * This script is called by oauth-setup.sh and should not be run directly.
+ * Use: lando oauth-setup
+ *
  * This script creates two OAuth consumers:
  * - A "Previewer" consumer with 'previewer' role
  * - A "Viewer" consumer with 'viewer' role
- * 
+ *
  * Outputs environment variables to stdout and user messages to stderr.
- * 
+ *
  * When piped to a file, uses tee to show output on CLI and save to file.
  */
 
 use Drupal\Component\Utility\Crypt;
 use Drupal\consumers\Entity\Consumer;
-use Drupal\Component\Utility\Random;
-
-// Helper function to create keys directory
-function createKeysDirectory()
-{
-  $drupal_root = \Drupal::root();
-  $keys_dir = $drupal_root . '/../keys';
-  if (!is_dir($keys_dir)) {
-    mkdir($keys_dir, 0755, true);
-  }
-  return $keys_dir;
-}
-
-// Helper function to generate OAuth keys
-function generateOAuthKeys($keys_dir)
-{
-  $private_key_path = $keys_dir . '/private.key';
-  $public_key_path = $keys_dir . '/public.key';
-
-  if (!file_exists($private_key_path) || !file_exists($public_key_path)) {
-    // Use Drupal's OAuth key generator service
-    \Drupal::service('simple_oauth.key.generator')->generateKeys($keys_dir);
-    fwrite(STDERR, "Generated OAuth keys in $keys_dir\n");
-  }
-}
 
 // Helper function to create consumer
 function createConsumer($label, $role, $user_id = 2)
 {
-  $random = new Random();
   $client_id = Crypt::randomBytesBase64();
-  // Generate client secret without problematic characters for .env files
-  $client_secret = $random->name(12, TRUE);
+  // Generate cryptographically secure secret (URL-safe base64, 32 bytes)
+  $client_secret = rtrim(strtr(base64_encode(random_bytes(32)), '+/', '-_'), '=');
 
   $consumer = Consumer::create([
     'label' => $label,
@@ -125,22 +100,49 @@ function cleanupExistingConsumers()
   }
 }
 
+// Helper function to clean up default consumer (created automatically by simple_oauth)
+function cleanupDefaultConsumer()
+{
+  $consumer_storage = \Drupal::entityTypeManager()->getStorage('consumer');
+
+  // Check for and delete the auto-generated "default consumer"
+  $default_consumers = $consumer_storage->loadByProperties(['label' => 'default consumer']);
+  foreach ($default_consumers as $consumer) {
+    fwrite(STDERR, "Removing auto-generated default consumer...\n");
+    $consumer->delete();
+  }
+}
+
+// Parse command-line arguments
+$api_user_id = 2; // default fallback
+$reset_flag = false;
+
+if (isset($extra) && is_array($extra)) {
+  foreach ($extra as $arg) {
+    if ($arg === '--reset') {
+      $reset_flag = true;
+    }
+    if (preg_match('/^--uid=(\d+)$/', $arg, $matches)) {
+      $api_user_id = intval($matches[1]);
+    }
+  }
+}
+
 // Main execution
 try {
   fwrite(STDERR, "Setting up OAuth consumers...\n");
 
-  if (isset($extra) && in_array('--reset', $extra)) {
+  if ($reset_flag) {
     fwrite(STDERR, "--reset flag detected: cleaning up existing consumers...\n");
     cleanupExistingConsumers();
+  } else {
+    // Even on first run, clean up the auto-generated default consumer
+    cleanupDefaultConsumer();
   }
 
-  // Create keys directory and generate keys
-  $keys_dir = createKeysDirectory();
-  generateOAuthKeys($keys_dir);
-
   // Create consumers
-  $previewer_consumer = createConsumer('Previewer', 'previewer');
-  $viewer_consumer = createConsumer('Viewer', 'viewer');
+  $previewer_consumer = createConsumer('Previewer', 'previewer', $api_user_id);
+  $viewer_consumer = createConsumer('Viewer', 'viewer', $api_user_id);
 
   fwrite(STDERR, "Created OAuth consumers successfully\n");
   fwrite(STDERR, "\n");

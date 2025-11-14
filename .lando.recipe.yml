@@ -30,7 +30,7 @@ services:
         echo "${CONFIG_VAR}['preview_url'] = 'https://' . getenv('FRONTEND_HOST');" >> "$SETTINGS_PHP"
       - &reset-oauth-cmd |-
         echo "Setting up OAuth client for testing..."
-        drush php:script "$RECIPE_PATH/scripts/setup-oauth.php" -- --reset > $RECIPE_PATH/test/.env
+        drush php:script "$RECIPE_PATH/scripts/create-oauth-consumers.php" -- --reset > $RECIPE_PATH/test/.env
       - |-
         drush php:eval "
           \$storage = \Drupal::entityTypeManager()->getStorage('node');
