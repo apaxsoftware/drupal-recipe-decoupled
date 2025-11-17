@@ -70,12 +70,12 @@ function isStdoutPiped()
 // Helper function to output environment variables with tee if piped
 function outputEnvVars($previewer_consumer, $viewer_consumer)
 {
-  $env_vars = "# Previewer credentials:\n";
+  $env_vars = "# Viewer credentials:\n";
+  $env_vars .= "DRUPAL_CLIENT_ID='" . $viewer_consumer['client_id'] . "'\n";
+  $env_vars .= "DRUPAL_CLIENT_SECRET='" . $viewer_consumer['client_secret'] . "'\n";
+  $env_vars .= "# Previewer credentials:\n";
   $env_vars .= "DRUPAL_PREVIEW_CLIENT_ID='" . $previewer_consumer['client_id'] . "'\n";
   $env_vars .= "DRUPAL_PREVIEW_CLIENT_SECRET='" . $previewer_consumer['client_secret'] . "'\n";
-  $env_vars .= "# Viewer credentials:\n";
-  $env_vars .= "DRUPAL_VIEWER_CLIENT_ID='" . $viewer_consumer['client_id'] . "'\n";
-  $env_vars .= "DRUPAL_VIEWER_CLIENT_SECRET='" . $viewer_consumer['client_secret'] . "'\n";
 
   if (isStdoutPiped()) {
     // If piped, write to stderr for display and stdout for file
