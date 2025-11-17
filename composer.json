@@ -10,11 +10,10 @@
     "type": "drupal-recipe",
     "license": "GPL-2.0-or-later",
     "require": {
-        "apax/recipe_apax_base": "dev-main",
+        "apax/recipe_apax_base": "^1.0",
         "drupal/decoupled_preview_iframe": "^1.0",
         "drupal/graphql_compose": "^2.2",
         "drupal/graphql_compose_fragments": "^1.0@beta",
-        "drupal/graphql_compose_metatags": "^1.0",
         "drupal/graphql_compose_preview": "^1.0",
         "drupal/graphql_compose_webform": "^1.2@dev",
         "drupal/simple_oauth": "^6.0",
