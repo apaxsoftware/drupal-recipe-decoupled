@@ -1,16 +1,16 @@
 name: apax-recipe
 x-vars:
-  - &recipe-vendor  apax
-  - &recipe-path    /var/www/recipe
+  - &recipe-vendor apax
+  - &recipe-path /var/www/recipe
   - &patches-env
-      PATCHES_APPLY: 0 # 0 = disable, 1 = enable
-      # PATCHES_JSON: >-
-      #   {
-      #     "drupal/decoupled_preview_iframe": {
-      #       "https://drupal.org/i/3472795 - Fix config form error":
-      #         "https://git.drupalcode.org/issue/decoupled_preview_iframe-3472795/-/commit/f4eb64f9.patch"
-      #     }
-      #   }
+    PATCHES_APPLY: 0 # 0 = disable, 1 = enable
+    # PATCHES_JSON: >-
+    #   {
+    #     "drupal/decoupled_preview_iframe": {
+    #       "https://drupal.org/i/3472795 - Fix config form error":
+    #         "https://git.drupalcode.org/issue/decoupled_preview_iframe-3472795/-/commit/f4eb64f9.patch"
+    #     }
+    #   }
 
 services:
   appserver:
@@ -36,12 +36,13 @@ services:
       - composer require --no-interaction $COMPOSER_PATCH_PLUGIN drush/drush $RECIPE_VENDOR/$RECIPE_NAME
     run_internal:
       - |-
-        drush site:install "/app/recipes/$RECIPE_NAME" \
+        drush site:install minimal \
           --db-url='mysql://drupal:drupal@database/drupal' \
           --account-name='admin' \
           --account-pass='admin' \
           --account-mail='info@apaxsoftware.com' \
           --yes
+      - drush recipe /app/recipes/$RECIPE_NAME --yes
       - |-
         echo "Creating Editor user with content_editor role..."
         drush user:create Editor --mail="editor@example.com" --password="editor123"
