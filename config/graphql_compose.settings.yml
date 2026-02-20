@@ -43,11 +43,18 @@ entity_config:
       query_load_enabled: true
       edges_enabled: true
       routes_enabled: true
+  paragraph:
+    html_content:
+      enabled: true
+      edges_enabled: true
   user:
     user:
       enabled: true
       query_load_enabled: true
       edges_enabled: true
+  webform:
+    contact:
+      enabled: false
 field_config:
   media:
     image:
@@ -55,7 +62,11 @@ field_config:
         enabled: true
   node:
     page:
-      body:
+      field_components:
+        enabled: true
+  paragraph:
+    html_content:
+      field_html:
         enabled: true
 settings:
   exclude_unpublished: false
