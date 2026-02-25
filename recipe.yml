@@ -18,6 +18,7 @@ install:
   - graphql_compose_users
   - graphql_compose_views
   - graphql_compose_webform
+  - language
   - simple_oauth
   - site_settings
   - site_settings_type_permissions
